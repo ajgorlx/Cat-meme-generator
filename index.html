@@ -1,0 +1,120 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cat_meme_generator</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+
+</head>
+<body>
+    <div id="app" >
+
+        <div>
+            <label for="topText">Top text:</label>
+            <input type="text" v-model="topText" class="form-control">
+        </div>
+        <div>
+            <label for="bottomText">Bottom text:</label>
+            <input type="text" v-model="bottomText" class="form-control">
+        </div>
+        <canvas ref="canvas" id="canvas"></canvas>
+        <div>
+            <button @click="generateMeme" class="form-container">Generate Meme</button>
+        </div>
+        <div>
+            <button @click="downloadMeme" class="form-container">Download Meme</button>
+        </div>
+ 
+        
+        
+        
+        
+    </div>
+</body>
+<script>
+const app = Vue.createApp ({
+    data(){
+        return{
+            topText: '',
+            bottomText: '',
+            
+        }
+    },
+    methods:{
+        async generateMeme() {
+            try {
+                const response = await axios.get('https://cataas.com/cat', { responseType: 'blob' });
+                const imageUrl = window.URL.createObjectURL(new Blob([response.data]));
+                this.createImage(imageUrl);
+            } catch (error) {
+                console.error('Error generating meme:', error);
+            }
+            
+        },
+        downloadMeme() {
+            const canvas = this.$refs.canvas;
+            const imageUrl = canvas.toDataURL();
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = 'meme.png';
+            link.click();
+        },
+        
+        createImage(imageUrl){
+            const vm = this;
+
+            const image = new Image();
+                image.onload = (ev) => {
+                    const canvas = this.$refs.canvas;
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0,0,canvas.height, canvas.width)
+                    ctx.drawImage(image,0,0);
+                    const e = (canvas.width + canvas.height) / 2 * 4/100;
+                    ctx.font = e + "pt sans-serif"
+                    ctx.textAlign = "center"
+                    ctx.textBaseline="top"
+                    ctx.lineWidth = e / 5
+                    ctx.strokeStyle = "black"
+                    ctx.fillStyle = "white"
+                    ctx.lineJoin = "round";
+                    const t = vm.topText.toUpperCase(),
+                    n = vm.bottomText.toUpperCase();
+                    ctx.strokeText(t, canvas.width / 2, .05 * canvas.height)
+                    ctx.fillText(t, canvas.width / 2, .05 * canvas.height)
+                    ctx.strokeText(n, canvas.width / 2, .9 * canvas.height)
+                    ctx.fillText(n, canvas.width / 2, .9 * canvas.height)
+                }
+                image.src = imageUrl;
+            }
+        },
+        mounted(){
+            this.generateMeme();
+        }
+    }
+)
+app.mount('#app');
+</script>
+<style>
+
+
+#canvas{
+    width: 500px;
+    height: 500px;
+    
+}
+.form-control{
+    padding: 6px;
+    width: 300px;
+    display: flex;
+}
+.form-container{
+    padding: 7px;
+    margin-top: 10px;
+}
+</style>
+</html>
