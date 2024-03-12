@@ -5,27 +5,38 @@
     <title>cat_meme_generator</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-
-
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
+    <link rel="import" href="">
 </head>
 <body>
     <div id="app" >
 
         <div>
-            <label for="topText">Top text:</label>
-            <input type="text" v-model="topText" class="form-control">
+            <label for="topText" class="topText">Top text:</label>
+            <input 
+            type="text" 
+            v-model="topText" 
+            class="form-control">
         </div>
         <div>
-            <label for="bottomText">Bottom text:</label>
-            <input type="text" v-model="bottomText" class="form-control">
+            <label for="bottomText" class="bottomText">Bottom text:</label>
+            <input 
+            type="text" 
+            v-model="bottomText" 
+            class="form-control">
         </div>
         <canvas ref="canvas" id="canvas"></canvas>
-        <div>
-            <button @click="generateMeme" class="form-container">Generate Meme</button>
-        </div>
-        <div>
-            <button @click="downloadMeme" class="form-container">Download Meme</button>
+        <div class="button-container">
+            <button 
+            @click="generateMeme" 
+            class="form-container"
+            >Generate Meme
+        </button>
+        <button 
+            @click="downloadMeme" 
+            class="form-container"
+            >Download Meme
+        </button>
         </div>
  
         
@@ -103,18 +114,33 @@ app.mount('#app');
 
 
 #canvas{
-    width: 500px;
-    height: 500px;
-    
+    width: 700px;
+    height: 700px;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    margin:auto
+}
+.bottomText, .topText{
+    text-align: center;
+    margin: 6px 0 auto;
+    display: block;
 }
 .form-control{
     padding: 6px;
-    width: 300px;
+    height: 35px;
+    width: 500px;
     display: flex;
+    margin:6px auto
 }
 .form-container{
-    padding: 7px;
-    margin-top: 10px;
+    padding: 24px;
+    margin: 8px 8px auto;
+}
+.button-container{
+    display: block;
+    text-align: center;
+    justify-content: center;
 }
 </style>
 </html>
