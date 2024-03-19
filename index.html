@@ -37,12 +37,8 @@
             class="form-container"
             >Download Meme
         </button>
-        </div>
- 
-        
-        
-        
-        
+        <div v-if="loading" class="form-container">Loading...</div>
+        </div>     
     </div>
 </body>
 <script>
@@ -51,19 +47,24 @@ const app = Vue.createApp ({
         return{
             topText: '',
             bottomText: '',
+            errorMessage: '',
+            loading: false
             
         }
     },
     methods:{
         async generateMeme() {
+            this.loading = true;
             try {
                 const response = await axios.get('https://cataas.com/cat', { responseType: 'blob' });
                 const imageUrl = window.URL.createObjectURL(new Blob([response.data]));
                 this.createImage(imageUrl);
+                this.errorMessage = '';
             } catch (error) {
-                console.error('Error generating meme:', error);
+                this.errorMessage = 'Error generating meme';
+            }finally {
+                this.loading = false;
             }
-            
         },
         downloadMeme() {
             const canvas = this.$refs.canvas;
