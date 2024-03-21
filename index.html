@@ -1,147 +1,140 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>cat_meme_generator</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
-    <link rel="import" href="">
-</head>
-<body>
-    <div id="app" >
-
-        <div>
-            <label for="topText" class="topText">Top text:</label>
-            <input 
-            type="text" 
-            v-model="topText" 
-            class="form-control">
-        </div>
-        <div>
-            <label for="bottomText" class="bottomText">Bottom text:</label>
-            <input 
-            type="text" 
-            v-model="bottomText" 
-            class="form-control">
-        </div>
-        <canvas ref="canvas" id="canvas"></canvas>
-        <div class="button-container">
-            <button 
-            @click="generateMeme" 
-            class="form-container"
-            >Generate Meme
+    <link
+      rel="stylesheet"
+      href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons"
+    />
+    <link rel="import" href="" />
+  </head>
+  <body>
+    <div id="app">
+      <div>
+        <label for="topText" class="topText">Top text:</label>
+        <input type="text" v-model="topText" class="form-control" />
+      </div>
+      <div>
+        <label for="bottomText" class="bottomText">Bottom text:</label>
+        <input type="text" v-model="bottomText" class="form-control" />
+      </div>
+      <canvas ref="canvas" id="canvas"></canvas>
+      <div class="button-container">
+        <button @click="generateMeme" class="form-container">
+          Generate Meme
         </button>
-        <button 
-            @click="downloadMeme" 
-            class="form-container"
-            >Download Meme
+        <button @click="downloadMeme" class="form-container">
+          Download Meme
         </button>
         <div v-if="loading" class="form-container">Loading...</div>
-        </div>     
+      </div>
     </div>
-</body>
-<script>
-const app = Vue.createApp ({
-    data(){
-        return{
-            topText: '',
-            bottomText: '',
-            errorMessage: '',
-            loading: false
-            
-        }
-    },
-    methods:{
+  </body>
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          topText: "",
+          bottomText: "",
+          errorMessage: "",
+          loading: false,
+        };
+      },
+      methods: {
         async generateMeme() {
-            this.loading = true;
-            try {
-                const response = await axios.get('https://cataas.com/cat', { responseType: 'blob' });
-                const imageUrl = window.URL.createObjectURL(new Blob([response.data]));
-                this.createImage(imageUrl);
-                this.errorMessage = '';
-            } catch (error) {
-                this.errorMessage = 'Error generating meme';
-            }finally {
-                this.loading = false;
-            }
+          this.loading = true;
+          try {
+            const response = await axios.get("https://cataas.com/cat", {
+              responseType: "blob",
+            });
+            const imageUrl = window.URL.createObjectURL(
+              new Blob([response.data])
+            );
+            this.createImage(imageUrl);
+            this.errorMessage = "";
+          } catch (error) {
+            this.errorMessage = "Error generating meme";
+          } finally {
+            this.loading = false;
+          }
         },
         downloadMeme() {
+          const canvas = this.$refs.canvas;
+          const imageUrl = canvas.toDataURL();
+          const link = document.createElement("a");
+          link.href = imageUrl;
+          link.download = "meme.png";
+          link.click();
+        },
+
+        createImage(imageUrl) {
+          const vm = this;
+
+          const image = new Image();
+          image.onload = (ev) => {
             const canvas = this.$refs.canvas;
-            const imageUrl = canvas.toDataURL();
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.download = 'meme.png';
-            link.click();
+            canvas.width = image.width;
+            canvas.height = image.height;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.height, canvas.width);
+            ctx.drawImage(image, 0, 0);
+            const e = (((canvas.width + canvas.height) / 2) * 4) / 100;
+            ctx.font = e + "pt sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            ctx.lineWidth = e / 5;
+            ctx.strokeStyle = "black";
+            ctx.fillStyle = "white";
+            ctx.lineJoin = "round";
+            const t = vm.topText.toUpperCase(),
+              n = vm.bottomText.toUpperCase();
+            ctx.strokeText(t, canvas.width / 2, 0.05 * canvas.height);
+            ctx.fillText(t, canvas.width / 2, 0.05 * canvas.height);
+            ctx.strokeText(n, canvas.width / 2, 0.9 * canvas.height);
+            ctx.fillText(n, canvas.width / 2, 0.9 * canvas.height);
+          };
+          image.src = imageUrl;
         },
-        
-        createImage(imageUrl){
-            const vm = this;
-
-            const image = new Image();
-                image.onload = (ev) => {
-                    const canvas = this.$refs.canvas;
-                    canvas.width = image.width;
-                    canvas.height = image.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0,0,canvas.height, canvas.width)
-                    ctx.drawImage(image,0,0);
-                    const e = (canvas.width + canvas.height) / 2 * 4/100;
-                    ctx.font = e + "pt sans-serif"
-                    ctx.textAlign = "center"
-                    ctx.textBaseline="top"
-                    ctx.lineWidth = e / 5
-                    ctx.strokeStyle = "black"
-                    ctx.fillStyle = "white"
-                    ctx.lineJoin = "round";
-                    const t = vm.topText.toUpperCase(),
-                    n = vm.bottomText.toUpperCase();
-                    ctx.strokeText(t, canvas.width / 2, .05 * canvas.height)
-                    ctx.fillText(t, canvas.width / 2, .05 * canvas.height)
-                    ctx.strokeText(n, canvas.width / 2, .9 * canvas.height)
-                    ctx.fillText(n, canvas.width / 2, .9 * canvas.height)
-                }
-                image.src = imageUrl;
-            }
-        },
-        mounted(){
-            this.generateMeme();
-        }
+      },
+      mounted() {
+        this.generateMeme();
+      },
+    });
+    app.mount("#app");
+  </script>
+  <style>
+    #canvas {
+      width: 700px;
+      height: 700px;
+      text-align: center;
+      justify-content: center;
+      display: flex;
+      margin: auto;
     }
-)
-app.mount('#app');
-</script>
-<style>
-
-
-#canvas{
-    width: 700px;
-    height: 700px;
-    text-align: center;
-    justify-content: center;
-    display: flex;
-    margin:auto
-}
-.bottomText, .topText{
-    text-align: center;
-    margin: 6px 0 auto;
-    display: block;
-}
-.form-control{
-    padding: 6px;
-    height: 35px;
-    width: 500px;
-    display: flex;
-    margin:6px auto
-}
-.form-container{
-    padding: 24px;
-    margin: 8px 8px auto;
-}
-.button-container{
-    display: block;
-    text-align: center;
-    justify-content: center;
-}
-</style>
+    .bottomText,
+    .topText {
+      text-align: center;
+      margin: 6px 0 auto;
+      display: block;
+    }
+    .form-control {
+      padding: 6px;
+      height: 35px;
+      width: 500px;
+      display: flex;
+      margin: 6px auto;
+    }
+    .form-container {
+      padding: 24px;
+      margin: 8px 8px auto;
+    }
+    .button-container {
+      display: block;
+      text-align: center;
+      justify-content: center;
+    }
+  </style>
 </html>
